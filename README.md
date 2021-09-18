@@ -1,4 +1,4 @@
-# qr-code-chrome-ext
+# Toeic-practices-checking
 
 ## Project setup
 ```
