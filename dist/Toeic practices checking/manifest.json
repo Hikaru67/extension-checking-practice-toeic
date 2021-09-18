@@ -1,0 +1,20 @@
+{
+  "name": "Toeic practices checking",
+  "description": "Looking for people who overslept to check in",
+  "version": "1.0",
+  "action": {
+    "default_icon": "logo.png",
+    "default_popup": "index.html"
+  },
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*.facebook.com/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "manifest_version": 3
+}
