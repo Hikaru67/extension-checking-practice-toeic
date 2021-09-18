@@ -17,13 +17,8 @@
       <p v-else>{{PRACTICE_TITLE}}</p>
       <p>{{content}}</p>
       <p>{{listOverslept}}</p>
-      <p>{{getTimeAgo}}</p>
-      {{ data }}
+      <p>{{timeLeft}}</p>
     </div>
-    <div
-      class="message"
-      style="min-height: 13px;"
-    >{{ message }}</div>
   </div>
 </template>
 <script>
@@ -42,7 +37,8 @@ export default {
       PRACTICE_TITLE,
       CHECK_IN_URL,
       PRACTICE_URL,
-      data: ''
+      data: '',
+      timeLeft: ''
     }
   },
 
@@ -51,11 +47,7 @@ export default {
       return (Date.parse(new Date().toString().replace(/[0-9]{2}:[0-9]{2}:[0-9]{2}/gm, '12:00:00')) - Date.now() > 0) ? 1 : 0
     },
     getTimeAgo() {
-      return this.timeAgo(this.isMorning)
-    },
-    getTimeLeft() {
-      if (this.isMorning) { return difference = Date.parse(new Date().toString().replace(/[0-9]{2}:[0-9]{2}:[0-9]{2}/gm, '10:00:00')) - Date.now() }
-      return Date.parse(new Date().toString().replace(/[0-9]{2}:[0-9]{2}:[0-9]{2}/gm, '23:59:59')) - Date.now();
+      return this.timeAgo()
     },
     getMessage() {
       if (this.isMorning) { return CHECK_IN_TITLE + "\n" }
@@ -64,12 +56,35 @@ export default {
     getMessageDone() {
       if (this.isMorning) { return "Mọi người đã check in đầy đủ, hẹn gặp lại vào buổi tối (O^O) !!!" }
       return "Mọi người đã nộp bài tập đầy đủ, chúc cả nhà ngủ ngon (O^O)... hoặc là khônggg ?!!"
+    },
+    timeNow() {
+      return new Date();
     }
   },
+
+  watch: {
+    time(val) {
+      console.log('🚀 ~ val', val)
+      console.log('object :>> ');
+      time = this.getTimeAgo
+    }
+  },
+  mounted() {
+    this.setTimeLeft()
+  },
+
   methods: {
-    timeAgo() {
+    setTimeLeft() {
+      setInterval(() => {
+        this.timeLeft = this.timeAgo(this.getTimeLeft(new Date))
+      }, 1000)
+    },
+    getTimeLeft(date) {
+      if (this.isMorning) { return difference = Date.parse(date.toString().replace(/[0-9]{2}:[0-9]{2}:[0-9]{2}/gm, '10:00:00')) - Date.now() }
+      return Date.parse(date.toString().replace(/[0-9]{2}:[0-9]{2}:[0-9]{2}/gm, '23:59:59')) - Date.now();
+    },
+    timeAgo(difference) {
       var result = '';
-      var difference = this.getTimeLeft
 
       if (difference < 5 * 1000) {
         return 'quá hạn';
@@ -77,11 +92,19 @@ export default {
         return 'phút đếm ngược';
       }
 
+      //it has secons
+      if ((difference % 1000 * 60) > 0) {
+        if (Math.floor(difference / 1000 % 60) > 0) {
+          let s = Math.floor(difference / 1000 % 60) == 1 ? '' : 's';
+          result = `${Math.floor(difference / 1000 % 60)} giây `;
+        }
+      }
+
       //it has minutes
       if ((difference % 1000 * 3600) > 0) {
         if (Math.floor(difference / 1000 / 60 % 60) > 0) {
           let s = Math.floor(difference / 1000 / 60 % 60) == 1 ? '' : 's';
-          result = `${Math.floor(difference / 1000 / 60 % 60)} phút `;
+          result = `${Math.floor(difference / 1000 / 60 % 60)} phút${result == '' ? '' : ','} ` + result;
         }
       }
 
