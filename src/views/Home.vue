@@ -10,7 +10,10 @@
       <button
         class="btn"
         @click="beforeSearch"
-      >Search</button>
+      >
+        <span v-if="loading">Loading...</span>
+        <span v-else>Search</span>
+      </button>
     </div>
     <div class="content">
       <p v-if="isMorning">{{ CHECK_IN_TITLE }}</p>
@@ -38,7 +41,8 @@ export default {
       CHECK_IN_URL,
       PRACTICE_URL,
       data: '',
-      timeLeft: ''
+      timeLeft: '',
+      loading: false
     }
   },
 
@@ -47,7 +51,7 @@ export default {
       return (Date.parse(new Date().toString().replace(/[0-9]{2}:[0-9]{2}:[0-9]{2}/gm, '12:00:00')) - Date.now() > 0) ? 1 : 0
     },
     getTimeAgo() {
-      return this.timeAgo()
+      return this.timeAgo(this.getTimeLeft(new Date))
     },
     getMessage() {
       if (this.isMorning) { return CHECK_IN_TITLE + "\n" }
@@ -62,13 +66,6 @@ export default {
     }
   },
 
-  watch: {
-    time(val) {
-      console.log('🚀 ~ val', val)
-      console.log('object :>> ');
-      time = this.getTimeAgo
-    }
-  },
   mounted() {
     this.setTimeLeft()
   },
@@ -80,16 +77,18 @@ export default {
       }, 1000)
     },
     getTimeLeft(date) {
-      if (this.isMorning) { return difference = Date.parse(date.toString().replace(/[0-9]{2}:[0-9]{2}:[0-9]{2}/gm, '10:00:00')) - Date.now() }
+      if (this.isMorning) { return Date.parse(date.toString().replace(/[0-9]{2}:[0-9]{2}:[0-9]{2}/gm, '10:00:00')) - Date.now() }
       return Date.parse(date.toString().replace(/[0-9]{2}:[0-9]{2}:[0-9]{2}/gm, '23:59:59')) - Date.now();
     },
+
     timeAgo(difference) {
       var result = '';
-
-      if (difference < 5 * 1000) {
+      if (!difference) {
+        difference = this.getTimeLeft(new Date)
+      }
+      if (difference < 0) {
+        console.log('difference :>> ', difference);
         return 'quá hạn';
-      } else if (difference < 90 * 1000) {
-        return 'phút đếm ngược';
       }
 
       //it has secons
@@ -127,49 +126,16 @@ export default {
       return result + 'đếm ngược';
     },
 
-    // checkIn() {
-    //   expand = document.querySelector('.j83agx80.fv0vnmcu.hpfvmrgz')
-    //   if (expand) { expand.click() }
-    //   participates = [{ name: 'Quang Nguyễn', checked: false }, { name: 'Trần Vân', checked: false }, { name: 'Anh Phương', checked: false }, { name: 'Liinh Mon', checked: false }, { name: 'Đoàn An Nhiên', checked: false }, { name: 'Hùng Đỗvăn', checked: false }, { name: 'Nguyễn Trang', checked: false }, { name: 'Trần Ngọc Ánh', checked: false }, { name: 'Hoàng Phương Thảo', checked: false }, { name: 'Trung Thong', checked: false }, { name: 'Đoàn An Nhiên', checked: false }];
-    //   listComments = document.querySelector('.cwj9ozl2.tvmbv18p')
-    //   comments = listComments.querySelectorAll('ul li .ni8dbmo4.stjgntxs.l9j0dhe7 span.nc684nl6')
-    //   i = 1;
-    //   names = new Array();
-    //   while (i < comments.length) {
-    //     names.push(comments[i].textContent);
-    //     i += 2;
-    //   }
-
-    //   participates.forEach(item => {
-    //     names.forEach(name => {
-    //       if ((name === item.name) || (name === "Nguyễn Thanh Xuân" && item.name === "Liinh Mon")) {
-    //         item.checked = true;
-    //         return;
-    //       }
-    //     });
-    //   })
-    //   this.listOverslept = []
-    //   var list = "";
-    //   participates.forEach(item => {
-    //     if (!item.checked) {
-    //       console.warn("=>> ", item.name);
-    //       this.listOverslept.push(item.name);
-    //       list += "@" + item.name + " ";
-    //     }
-    //   });
-    //   console.log(list + "Deadline chờ đón bạn !!! ;3");
-    //   console.warn(timeAgo());
-    //   return list;
-    // },
-
     sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     },
 
     async beforeSearch() {
+      this.loading = true;
       if (!this.isMorning) {
         if (new Date().toString().search('Sat') > -1 || new Date().toString().search('Sun') > -1 || new Date().toString().search('Thu') > -1) {
           alert("Hôm nay không có bài tập, mọi người buổi tối vui vẻ (O^O)... hoặc là khônggg ?!!")
+          this.loading = false;
           return 0
         }
       }
@@ -184,30 +150,45 @@ export default {
         args: [type, checkInUrl, praticeUrl],
         func: (type, checkInUrl, praticeUrl) => {
           if (type) {
-            document.location = checkInUrl
+            if (window.location.href !== checkInUrl) {
+              document.location = checkInUrl
+            }
           } else {
-            document.location = praticeUrl
+            if (window.location.href !== praticeUrl) {
+              document.location = praticeUrl
+            }
           }
         }
       });
       console.log('res :>> ', res);
-      await this.sleep(4000)
+      await this.sleep(6000)
       this.search()
     },
 
     async search() {
+      this.loading = true;
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       const tabId = tab.id;
       var message = this.getMessage
       var messageDone = this.getMessageDone
-      var timeAgo = this.getTimeAgo
+      var timeAgo = this.timeAgo(this.getTimeLeft(new Date))
+      setInterval(() => {
+        timeAgo = this.timeAgo(this.getTimeLeft(new Date))
+      }, 1000)
       try {
         var res = await chrome.scripting.executeScript({
           target: { tabId: tabId },
           args: [message, messageDone, timeAgo],
           func: (message, messageDone, timeAgo) => {
-            expand = document.querySelector('.j83agx80.fv0vnmcu.hpfvmrgz')
-            if (expand) { expand.click() }
+            while (true) {
+              expand = document.querySelector('.j83agx80.fv0vnmcu.hpfvmrgz')
+              console.log('🚀 ~ expand', expand)
+              if (expand) {
+                expand.click()
+                break;
+              }
+            }
+            console.log(timeAgo);
             new Promise(resolve => setTimeout(resolve, 1500)).then(() => {
               const participates = [{ name: 'Quang Nguyễn', checked: false }, { name: 'Trần Vân', checked: false }, { name: 'Anh Phương', checked: false }, { name: 'Liinh Mon', checked: false }, { name: 'Đoàn An Nhiên', checked: false }, { name: 'Hùng Đỗvăn', checked: false }, { name: 'Nguyễn Trang', checked: false }, { name: 'Trần Ngọc Ánh', checked: false }, { name: 'Hoàng Phương Thảo', checked: false }, { name: 'Trung Thong', checked: false }, { name: 'Đoàn An Nhiên', checked: false }];
               listComments = document.querySelector('.cwj9ozl2.tvmbv18p')
@@ -232,7 +213,6 @@ export default {
               participates.forEach(item => {
                 if (!item.checked) {
                   console.warn("=>> ", item.name);
-                  listOverslept.push(item.name);
                   list += "@" + item.name + "\n";
                 }
               });
@@ -240,7 +220,7 @@ export default {
                 alert(messageDone)
                 return messageDone;
               } else {
-                alert(message + "\n" + timeAgo);
+                alert(message + "\n" + list + "\n" + timeAgo);
                 return message;
               }
             });
@@ -248,7 +228,9 @@ export default {
         }, (result) => {
           console.log('🚀 ~ result', result);
         });
+        this.loading = false;
       } catch (e) {
+        this.loading = false;
       }
     }
   }
