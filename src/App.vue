@@ -9,4 +9,6 @@
     </div>
 </template>
 
-<style src="./assets/scss/style.scss" lang="scss"></style>
+<style src="./assets/scss/style.scss" lang="scss">
+@import'~bootstrap/dist/css/bootstrap.css'
+</style>

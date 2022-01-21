@@ -15,6 +15,37 @@
         <span v-else>Search</span>
       </button>
     </div>
+    <div class="mt-3 row">
+      <div class="col-6 mb-3">
+        <input
+          v-model="oldPrice"
+          type="text"
+          class="form-control"
+          placeholder="Old price"
+        >
+      </div>
+      <div class="col-6 mb-3">
+        <input
+          v-model="newPrice"
+          type="text"
+          class="form-control"
+          placeholder="New price"
+        >
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-6 mb-3">
+        <input
+          v-model="money"
+          type="text"
+          class="form-control"
+          placeholder="Money"
+        >
+      </div>
+      <div class="col-6">
+        Lời: {{ getInterest  }}
+      </div>
+    </div>
     <div class="content">
       <p v-if="isMorning">{{ CHECK_IN_TITLE }}</p>
       <p v-else>{{PRACTICE_TITLE}}</p>
@@ -42,6 +73,10 @@ export default {
       PRACTICE_URL,
       data: '',
       timeLeft: '',
+      oldPrice: '',
+      newPrice: '',
+      money: '',
+      interest: '',
       loading: false
     }
   },
@@ -63,6 +98,12 @@ export default {
     },
     timeNow() {
       return new Date();
+    },
+    getInterest() {
+      if (!this.newPrice || !this.oldPrice || !this.money) {
+        return 0
+      }
+      return (this.newPrice / this.oldPrice - 1) * this.money
     }
   },
 
