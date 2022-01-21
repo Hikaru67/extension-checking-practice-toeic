@@ -3,18 +3,6 @@
     <div class="guide">
       Looking for people who overslept to check in !!?
     </div>
-    <div
-      class="input-group"
-      style="margin-top: 30px;"
-    >
-      <button
-        class="btn"
-        @click="beforeSearch"
-      >
-        <span v-if="loading">Loading...</span>
-        <span v-else>Search</span>
-      </button>
-    </div>
     <div class="mt-3 row">
       <div class="col-6 mb-3">
         <input
@@ -45,13 +33,6 @@
       <div class="col-6">
         Lời: {{ getInterest  }}
       </div>
-    </div>
-    <div class="content">
-      <p v-if="isMorning">{{ CHECK_IN_TITLE }}</p>
-      <p v-else>{{PRACTICE_TITLE}}</p>
-      <p>{{content}}</p>
-      <p>{{listOverslept}}</p>
-      <p>{{timeLeft}}</p>
     </div>
   </div>
 </template>
