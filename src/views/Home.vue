@@ -149,19 +149,15 @@ export default {
         target: { tabId: tabId },
         args: [type, checkInUrl, praticeUrl],
         func: (type, checkInUrl, praticeUrl) => {
-          if (type) {
-            if (window.location.href !== checkInUrl) {
-              document.location = checkInUrl
-            }
-          } else {
-            if (window.location.href !== praticeUrl) {
-              document.location = praticeUrl
-            }
-          }
+          console.log(123)
         }
       });
       console.log('res :>> ', res);
-      await this.sleep(6000)
+      if (res[0].result) {
+        await this.sleep(2000)
+      } else {
+        await this.sleep(6000)
+      }
       this.search()
     },
 
@@ -172,25 +168,37 @@ export default {
       var message = this.getMessage
       var messageDone = this.getMessageDone
       var timeAgo = this.timeAgo(this.getTimeLeft(new Date))
+      var data = new Array
       setInterval(() => {
         timeAgo = this.timeAgo(this.getTimeLeft(new Date))
       }, 1000)
       try {
         var res = await chrome.scripting.executeScript({
           target: { tabId: tabId },
-          args: [message, messageDone, timeAgo],
-          func: (message, messageDone, timeAgo) => {
-            while (true) {
-              expand = document.querySelector('.j83agx80.fv0vnmcu.hpfvmrgz')
-              console.log('🚀 ~ expand', expand)
-              if (expand) {
-                expand.click()
-                break;
+          args: [message, messageDone, timeAgo, data],
+          func: (message, messageDone, timeAgo, data) => {
+            setTimeout(function () {
+              var index = 1
+              while (index++ < 100000) {
+                expand = document.querySelector('.j83agx80.fv0vnmcu.hpfvmrgz')
+                console.log('🚀 ~ expand', expand)
+                if (expand) {
+                  expand.click()
+                  break;
+                }
               }
-            }
+            }, 5000)
             console.log(timeAgo);
             new Promise(resolve => setTimeout(resolve, 1500)).then(() => {
-              const participates = [{ name: 'Quang Nguyễn', checked: false }, { name: 'Trần Vân', checked: false }, { name: 'Anh Phương', checked: false }, { name: 'Liinh Mon', checked: false }, { name: 'Đoàn An Nhiên', checked: false }, { name: 'Hùng Đỗvăn', checked: false }, { name: 'Nguyễn Trang', checked: false }, { name: 'Trần Ngọc Ánh', checked: false }, { name: 'Hoàng Phương Thảo', checked: false }, { name: 'Trung Thong', checked: false }, { name: 'Đoàn An Nhiên', checked: false }];
+              const participates = [
+                { name: 'Quang Nguyễn', checked: false },
+                { name: 'Trần Vân', checked: false },
+                { name: 'Đoàn An Nhiên', checked: false },
+                { name: 'Hùng Đỗvăn', checked: false },
+                { name: 'Trần Ngọc Ánh', checked: false },
+                { name: 'Hoàng Phương Thảo', checked: false },
+                { name: 'Trung Thong', checked: false }
+              ]
               listComments = document.querySelector('.cwj9ozl2.tvmbv18p')
               comments = listComments.querySelectorAll('ul li .ni8dbmo4.stjgntxs.l9j0dhe7 span.nc684nl6')
               i = 1;
@@ -214,6 +222,7 @@ export default {
                 if (!item.checked) {
                   console.warn("=>> ", item.name);
                   list += "@" + item.name + "\n";
+                  data.push(item.name)
                 }
               });
               if (!list) {
@@ -221,13 +230,17 @@ export default {
                 return messageDone;
               } else {
                 alert(message + "\n" + list + "\n" + timeAgo);
-                return message;
+                return list;
               }
             });
+            console.log('data :>> ', data);
+            console.log(window.btoa(data));
+            return window.btoa(data);
           }
         }, (result) => {
           console.log('🚀 ~ result', result);
         });
+        console.log('res :>> ', res[0].result);
         this.loading = false;
       } catch (e) {
         this.loading = false;
