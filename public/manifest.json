@@ -1,6 +1,6 @@
 {
-  "name": "Toeic check in",
-  "description": "Looking for people who overslept to check in",
+  "name": "Url phishing checking",
+  "description": "Checking url is malicious or not",
   "version": "1.0",
   "action": {
     "default_icon": "logo.png",
