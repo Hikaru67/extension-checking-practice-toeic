@@ -1,5 +1,5 @@
 <template>
-  <div class="toeic-check">
+  <div class="extension">
     <div class="guide">
       Looking for people who overslept to check in !!?
     </div>
